@@ -153,7 +153,7 @@ def write_vocabulary(vocab_processor, outfile):
 
 if __name__ == "__main__":
   print("Creating vocabulary...")
-  input_iter = create_csv_iter(DICT_PATH)
+  input_iter = create_csv_iter(TRAIN_PATH)
   input_iter = (x[0] + " " + x[1] for x in input_iter)
   vocab = create_vocab(input_iter, min_frequency=FLAGS.min_word_frequency)
   print("Total vocabulary size: {}".format(len(vocab.vocabulary_)))
