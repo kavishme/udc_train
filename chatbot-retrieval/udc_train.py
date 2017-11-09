@@ -8,7 +8,7 @@ import udc_metrics
 import udc_inputs
 from models.dual_encoder import dual_encoder_model
 
-tf.flags.DEFINE_string("input_dir", "../output_201706111650", "Directory containing input data files 'train.tfrecords' and 'validation.tfrecords'")
+tf.flags.DEFINE_string("input_dir", "../output_201708112134", "Directory containing input data files 'train.tfrecords' and 'validation.tfrecords'")
 tf.flags.DEFINE_string("model_dir", None, "Directory to store model checkpoints (defaults to ./runs)")
 tf.flags.DEFINE_integer("loglevel", 20, "Tensorflow log level")
 tf.flags.DEFINE_integer("num_epochs", None, "Number of training Epochs. Defaults to indefinite.")
@@ -37,7 +37,7 @@ def main(unused_argv):
   estimator = tf.contrib.learn.Estimator(
     model_fn=model_fn,
     model_dir=MODEL_DIR,
-    config=tf.contrib.learn.RunConfig())
+    config=tf.contrib.learn.RunConfig(gpu_memory_fraction=0.9))
 
   input_fn_train = udc_inputs.create_input_fn(
     mode=tf.contrib.learn.ModeKeys.TRAIN,
