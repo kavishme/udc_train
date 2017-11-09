@@ -37,7 +37,7 @@ def main(unused_argv):
   estimator = tf.contrib.learn.Estimator(
     model_fn=model_fn,
     model_dir=MODEL_DIR,
-    config=tf.contrib.learn.RunConfig())
+    config=tf.contrib.learn.RunConfig(gpu_memory_fraction=0.9))
 
   input_fn_train = udc_inputs.create_input_fn(
     mode=tf.contrib.learn.ModeKeys.TRAIN,
