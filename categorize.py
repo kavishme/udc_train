@@ -94,9 +94,9 @@ def Ekta_toCSV(postBytags, singleFile=False, filename="train.csv"):
                     wr = csv.writer(of, quoting=csv.QUOTE_ALL)
                     #wr.writerow(header)
                     for post in postBytags[tag]:
-                        if count<100000:
-                            wr.writerow(post[2:])
-                            count+=1
+                    
+                        wr.writerow(post[2:])
+                        count+=1
         else:
             with open(os.path.join(outdir, filename), 'w') as of:
                 wr = csv.writer(of, quoting=csv.QUOTE_ALL)
@@ -121,10 +121,11 @@ def randomizeAnswerAndLabel(posts):
             ra = random.choice(posts[rc])
             
             wrec = copy.deepcopy(rec)
+            rrec = copy.deepcopy(rec)
             wrec[-1] = ra[-1]
             
-            rec.append(1)
-            outposts[c].append(tuple(rec))
+            rrec.append(1)
+            outposts[c].append(tuple(rrec))
             wrec.append(0)
             outposts[c].append(tuple(wrec))
     return outposts
