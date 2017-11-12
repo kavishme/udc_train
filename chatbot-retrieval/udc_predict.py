@@ -12,7 +12,7 @@ from models.dual_encoder import dual_encoder_model
 from models.helpers import load_vocab
 
 tf.flags.DEFINE_string("model_dir", None, "Directory to load model checkpoints from")
-tf.flags.DEFINE_string("vocab_processor_file", "./data/vocab_processor.bin", "Saved vocabulary processor file")
+tf.flags.DEFINE_string("vocab_processor_file", "../output_201708112134/vocab_processor.bin", "Saved vocabulary processor file")
 FLAGS = tf.flags.FLAGS
 
 if not FLAGS.model_dir:

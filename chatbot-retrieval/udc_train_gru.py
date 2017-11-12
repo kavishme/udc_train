@@ -6,7 +6,7 @@ import udc_model
 import udc_hparams
 import udc_metrics
 import udc_inputs
-from models.dual_encoder import dual_encoder_model
+from models.dual_encoder_gru import dual_encoder_model
 
 tf.flags.DEFINE_string("input_dir", "../output_201708112134", "Directory containing input data files 'train.tfrecords' and 'validation.tfrecords'")
 tf.flags.DEFINE_string("model_dir", None, "Directory to store model checkpoints (defaults to ./runs)")
@@ -15,13 +15,13 @@ tf.flags.DEFINE_integer("num_epochs", None, "Number of training Epochs. Defaults
 tf.flags.DEFINE_integer("eval_every", 2000, "Evaluate after this many train steps")
 FLAGS = tf.flags.FLAGS
 
-TIMESTAMP = "1510255547"
+TIMESTAMP = "201711111126"
 #TIMESTAMP = int(time.time())
 
 if FLAGS.model_dir:
   MODEL_DIR = FLAGS.model_dir
 else:
-  MODEL_DIR = os.path.abspath(os.path.join("./runs", str(TIMESTAMP)))
+  MODEL_DIR = os.path.abspath(os.path.join("./runs", str(TIMESTAMP)+"_gru"))
 
 TRAIN_FILE = os.path.abspath(os.path.join(FLAGS.input_dir, "train.tfrecords"))
 VALIDATION_FILE = os.path.abspath(os.path.join(FLAGS.input_dir, "validation.tfrecords"))
@@ -58,10 +58,10 @@ def main(unused_argv):
 
   eval_metrics = udc_metrics.create_evaluation_metrics()
   
-  eval_monitor = tf.contrib.learn.monitors.ValidationMonitor(
-        input_fn=input_fn_eval,
-        every_n_steps=FLAGS.eval_every,
-        metrics=eval_metrics)
+ # eval_monitor = tf.contrib.learn.monitors.ValidationMonitor(
+        #input_fn=input_fn_eval,
+        #every_n_steps=FLAGS.eval_every,
+        #metrics=eval_metrics)
 
   estimator.fit(input_fn=input_fn_train, steps=None)#, monitors=[eval_monitor])
 
