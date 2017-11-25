@@ -42,9 +42,10 @@ def getPostsByTags():
             for tag in getTags(result[0]):
                 if tag not in postsByTags:
                     postsByTags[tag] = []
-                postsByTags[tag].append(result[1] + ' ' + result[2])
-
-            print(result[0])
+                
+                if len(postsByTags[tag]) < 3000:
+                    postsByTags[tag].append(result[1] + ' ' + result[2])    
+            
             result = cur.fetchone()
         
         return postsByTags
@@ -114,6 +115,24 @@ def toColumns(p):
     return ques, tags
 
 
+def wordToVec(posts):
+    bagOfWords = {}
+    for q in posts:
+            for word in q.split():
+                bagOfWords[word] = 0
+    
+    i = 0
+    for item in bagOfWords:
+        bagOfWords[item] = str(i)
+        i += 1
+    
+    outposts = {}
+    for q in posts:
+        vec = [bagOfWords[w] for w in q.split()]
+        outposts[' '.join(vec)] = posts[q]
+
+    return outposts, bagOfWords
+
 # def cat_count(posts):
 #     filepath = "cat_count.csv"
 #     f = open(filepath, 'w')
@@ -131,13 +150,20 @@ if __name__ == "__main__":
     p = getPostsByTags()
 
     # File already created, not required to do again
-    # cat_count(p)    
+    # cat_count(p)
     
     # filter by number of questions and put all else under "other" tag
     # tagsWithMinQues(postsData, min_ques_per_tag, max_other_ques, max_ques_len)
-    p = tagsWithMinQues(p, 1000, 6000, 160)
+    p = tagsWithMinQues(p, 3000, 3000, 160)
 
     # convert {tag:[questions]} to {ques:[0,1,0,0,0,1...]} format
     p, tags = toColumns(p)
+    p, bagOfWords = wordToVec(p)
+    
+    # write of bag of words to json file to reference
+    bagstr = json.dumps(bagOfWords)
+    f = open("bagOfWords.json", 'w')
+    f.write(bagstr)
+    f.close()
 
     saveToCSV(p, tags)
