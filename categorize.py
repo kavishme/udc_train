@@ -34,15 +34,18 @@ def getPostsByTags():
 
         sql = """
             SELECT qtags, qtitle, qbody, abody
-            FROM postscleaned;
+            FROM postscleaned_raw;
          """
         cur.execute(sql)
         result = cur.fetchone()
         while(result):
+            result = list(result)
+            result[2] = result[1] + ' ' + result[2]
+            
             for tag in getTags(result[0]):
                 if tag not in postsByTags:
                     postsByTags[tag] = []
-                postsByTags[tag].append(list(result))
+                postsByTags[tag].append(result)
 
             print(result[0])
             result = cur.fetchone()
@@ -94,7 +97,6 @@ def Ekta_toCSV(postBytags, singleFile=False, filename="train.csv"):
                     wr = csv.writer(of, quoting=csv.QUOTE_ALL)
                     #wr.writerow(header)
                     for post in postBytags[tag]:
-                    
                         wr.writerow(post[2:])
                         count+=1
         else:
@@ -195,8 +197,8 @@ def getTestValSet(posts):
     for tag in posts:
         print("Val and test data for " + tag)
         total = len(posts[tag])
-        valSamples = int(total*0.15)
-        testSamples = int(total*0.25)
+        valSamples = int(total*0.10)
+        testSamples = int(total*0.20)
         rvals = random.sample(posts[tag], valSamples)
         for rv in rvals:
             posts[tag].remove(rv)

@@ -24,7 +24,7 @@ def getTags(text):
 """
 Return dictionary of tags - posts
 """
-def getPostsByTags():
+def getPostsByTags(max_ques):
     try:
         postsByTags = {}
         conn = psycopg2.connect(host=DB_ENDPOINT, port=DB_PORT,
@@ -34,7 +34,7 @@ def getPostsByTags():
 
         sql = """
             SELECT qtags, qtitle, qbody
-            FROM postscleaned;
+            FROM postscleaned_raw;
          """
         cur.execute(sql)
         result = cur.fetchone()
@@ -43,8 +43,8 @@ def getPostsByTags():
                 if tag not in postsByTags:
                     postsByTags[tag] = []
                 
-                if len(postsByTags[tag]) < 3000:
-                    postsByTags[tag].append(result[1] + ' ' + result[2])    
+                if len(postsByTags[tag]) < max_ques:
+                    postsByTags[tag].append(result[1] + ' ' + result[2])
             
             result = cur.fetchone()
         
@@ -82,19 +82,21 @@ def saveToCSV(postByQues, tags, filename="categories_data.csv"):
 
 def tagsWithMinQues(posts, min_ques, max_other, max_ques_len):
     p = {}
-    p["others"] = []
+    if max_other > 0:
+        p["others"] = []
+    
     for tag in posts:
         if max_ques_len > 0:
             questions = [' '.join(q.split()[:max_ques_len]) for q in posts[tag]]
         else:
             questions = posts[tag]
 
-        if len(posts[tag]) < min_ques:
+        if max_other > 0 and len(posts[tag]) < min_ques:
             p["others"].extend(questions)
-        else:
+        elif len(posts[tag]) >= min_ques:
             p[tag] = questions
     
-    if len(p["others"]) > max_other:
+    if max_other > 0 and len(p["others"]) > max_other:
         p["others"] = random.sample(p["others"], k=max_other)
     
     return p
@@ -147,23 +149,23 @@ def wordToVec(posts):
 
 if __name__ == "__main__":
     # get data in {tag:[questions]}
-    p = getPostsByTags()
+    p = getPostsByTags(3000)
 
     # File already created, not required to do again
     # cat_count(p)
     
     # filter by number of questions and put all else under "other" tag
     # tagsWithMinQues(postsData, min_ques_per_tag, max_other_ques, max_ques_len)
-    p = tagsWithMinQues(p, 3000, 3000, 160)
+    p = tagsWithMinQues(p, 3000, 0, 160)
 
     # convert {tag:[questions]} to {ques:[0,1,0,0,0,1...]} format
     p, tags = toColumns(p)
-    p, bagOfWords = wordToVec(p)
+    # p, bagOfWords = wordToVec(p)
     
     # write of bag of words to json file to reference
-    bagstr = json.dumps(bagOfWords)
-    f = open("bagOfWords.json", 'w')
-    f.write(bagstr)
-    f.close()
+    # bagstr = json.dumps(bagOfWords)
+    # f = open("bagOfWords.json", 'w')
+    # f.write(bagstr)
+    # f.close()
 
     saveToCSV(p, tags)

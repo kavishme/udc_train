@@ -48,14 +48,15 @@ def cleanText(text):
     soup = BeautifulSoup(unescape(text), "html.parser")
     text = soup.get_text()  # nltk.clean_html(unescape(text))
 
-    tokens = word_tokenize(text)
-    new_tokens = []
-    for t in tokens:
-        nt = regex.sub(u'', t)
-        if not nt == u'' and nt not in stopwords.words('english'):
-            new_tokens.append(wordnet.lemmatize(nt))
+    # tokens = word_tokenize(text)
+    # new_tokens = []
+    # for t in tokens:
+    #     nt = regex.sub(u'', t)
+    #     if not nt == u'' and nt not in stopwords.words('english'):
+    #         new_tokens.append(wordnet.lemmatize(nt))
 
-    return " ".join(new_tokens)
+    # return " ".join(new_tokens)
+    return text
 
 
 def main():
@@ -94,7 +95,7 @@ def main():
             for i in [2, 3, 7]:
                 result[i] = cleanText(result[i])
 
-            insert_sql = cur.mogrify("""INSERT INTO postscleaned (qid, qtags, qtitle, qbody, acceptedans, aid, ascore, abody)
+            insert_sql = cur.mogrify("""INSERT INTO postscleaned_raw (qid, qtags, qtitle, qbody, acceptedans, aid, ascore, abody)
                             VALUES(%s, %s, %s, %s, %s, %s, %s, %s);""", result)
             curins.execute(insert_sql)
             conn.commit()
