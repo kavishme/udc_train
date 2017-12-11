@@ -1,3 +1,4 @@
+magpie_model/**
 .venv
 .vscode
 output**

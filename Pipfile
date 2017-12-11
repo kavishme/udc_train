@@ -14,7 +14,10 @@ name = "pypi"
 nltk = "*"
 "psycopg2" = "*"
 "beautifulsoup4" = "*"
-tensorflow-gpu = "==1.0"
+flask = "*"
+flask-api = "*"
+flask-cors = "*"
+tensorflow = "==1.0"
 
 
 [requires]
