@@ -34,7 +34,7 @@ def getPostsByTags(max_ques):
 
         sql = """
             SELECT qtags, qtitle, qbody
-            FROM postscleaned_raw;
+            FROM postscleaned;
          """
         cur.execute(sql)
         result = cur.fetchone()
@@ -60,7 +60,8 @@ Store posts to CSV files by tags
 def saveToCSV(postByQues, tags, filename="categories_data.csv"):
     try:
         outdir = "output_" + datetime.datetime.now().strftime('%Y%d%m%H%M')
-        os.makedirs(outdir)
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
 
         header=["question"]
         header.extend(tags)
@@ -168,4 +169,4 @@ if __name__ == "__main__":
     # f.write(bagstr)
     # f.close()
 
-    saveToCSV(p, tags)
+    saveToCSV(p, tags, "categories_data_3k_clean.csv")

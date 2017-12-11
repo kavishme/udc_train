@@ -8,20 +8,22 @@ DB_PASSWORD = 'root'
 DB_PORT = 5432 
 
 
-QUESTION="""changed ubuntu theme day ago worked perfectly mediterranean something 
-like gtk theme wanted change cursor theme worked well although make quite 
-mess file icon folder also put icon theme worked restarted pc several day 
-combination ambiance theme apps look like theme nautilus look like ambiance icon pack 
-removed completely well mouse work tried logging back also restarting repair ubuntu theme"""
+QUESTION="""cause ubuntu us upstart instead init different red hat get list runlevel 
+number standing init 0 mean shutdown man init ca nt show list command man page cant print 
+list thx"""
 
-
+#ANS=official way use updatercd default setting usually 
+# good updatercd bind9 default need explicitly chose startstop 
+# runlevels updatercd bind9 start 19 3 5 stop 98 1 19 98 sequence 
+# number determines startstop priority respectively 3 5 1 startstop runlevels 
+# respectively runlevels exact numbering meaning found
 def get_tags():
     conn = psycopg2.connect(host=DB_ENDPOINT, port=DB_PORT,
                                 user=DB_USERNAME, password=DB_PASSWORD, dbname=DB_NAME)
     cur = conn.cursor()
     curins = conn.cursor()
-    sql="""select abody from postscleaned where qtags like '%icons%' or 
-    qtags like 'themes' or qtags like '%icon-themes%'"""
+    #sql="""select abody from postscleaned where qtags like '%services%'"""
+    sql = "select qbody from postscleaned where qtags like '<runlevel>'"
     cur.execute(sql)
     result = cur.fetchone()
     f = open("answer.csv", "w")
