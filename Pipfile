@@ -14,10 +14,9 @@ name = "pypi"
 nltk = "*"
 "psycopg2" = "*"
 "beautifulsoup4" = "*"
-tensorflow-gpu = "==0.12"
-magpie = "*"
+tensorflow-gpu = "==1.0"
 
 
 [requires]
 
-python_version = "3.4"
+python_version = "2.7"

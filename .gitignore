@@ -3,3 +3,7 @@
 output**
 data**
 *.csv
+models/**
+*.labels
+data/**
+dummy/**
