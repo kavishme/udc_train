@@ -18,14 +18,17 @@ regex = re.compile('<([\w\.\-\_\s]+)>')
 """
 Returns list of tags parsed from tag string.
 """
+
+
 def getTags(text):
     return regex.findall(text.lower())
 
-"""
-Return dictionary of tags - posts
-"""
-def getPostsByTags(max_ques):
+def getPostsByTags():
     try:
+        outdir = "output_" + datetime.datetime.now().strftime('%Y%d%m%H%M')
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
+
         postsByTags = {}
         conn = psycopg2.connect(host=DB_ENDPOINT, port=DB_PORT,
                                 user=DB_USERNAME, password=DB_PASSWORD, dbname=DB_NAME)
@@ -38,135 +41,29 @@ def getPostsByTags(max_ques):
          """
         cur.execute(sql)
         result = cur.fetchone()
+        labels = set()
+        number = 1
         while(result):
-            for tag in getTags(result[0]):
-                if tag not in postsByTags:
-                    postsByTags[tag] = []
-                
-                if len(postsByTags[tag]) < max_ques:
-                    postsByTags[tag].append(result[1] + ' ' + result[2])
-            
+            labof = open(os.path.join(outdir, str(number) + '.lab'), 'w')
+            txtof = open(os.path.join(outdir, str(number) + '.txt'), 'w')
+            labs = getTags(result[0])
+            print(labs)
+            labof.writelines("%s\n" % l for l in labs)
+            txtof.write(result[1] + ' ' + result[2])
+            labof.close()
+            txtof.close()
+            labels.update(labs)
             result = cur.fetchone()
-        
-        return postsByTags
+            number = number + 1
+
+        labof = open(os.path.join(outdir, 'askubuntu.labels'), 'w')
+        labof.writelines("%s\n" % l for l in labels)
+        labof.close()
+
     except Exception as err:
         print("ERR: ")
         print(err)
 
-
-"""
-Store posts to CSV files by tags
-"""
-def saveToCSV(postByQues, tags, filename="categories_data.csv"):
-    try:
-        outdir = "output_" + datetime.datetime.now().strftime('%Y%d%m%H%M')
-        if not os.path.exists(outdir):
-            os.makedirs(outdir)
-
-        header=["question"]
-        header.extend(tags)
-
-        of = open(os.path.join(outdir, filename), 'w')
-        wr = csv.writer(of, quoting=csv.QUOTE_ALL)
-        wr.writerow(header)
-        
-        for que in postByQues:
-            data = [que]
-            data.extend(postByQues[que])
-            wr.writerow(data)
-        
-        return outdir
-    except Exception as err:
-        print("ERR: ")
-        print(err)
-
-
-def tagsWithMinQues(posts, min_ques, max_other, max_ques_len):
-    p = {}
-    if max_other > 0:
-        p["others"] = []
-    
-    for tag in posts:
-        if max_ques_len > 0:
-            questions = [' '.join(q.split()[:max_ques_len]) for q in posts[tag]]
-        else:
-            questions = posts[tag]
-
-        if max_other > 0 and len(posts[tag]) < min_ques:
-            p["others"].extend(questions)
-        elif len(posts[tag]) >= min_ques:
-            p[tag] = questions
-    
-    if max_other > 0 and len(p["others"]) > max_other:
-        p["others"] = random.sample(p["others"], k=max_other)
-    
-    return p
-
-def toColumns(p):
-    ques = {}
-    tags = list(p.keys())
-
-    for tag in tags:
-        for q in p[tag]:
-            
-            if q not in ques:
-                ques[q] = [0]*len(tags)
-
-            i = tags.index(tag)
-            ques[q][i] = 1
-    
-    return ques, tags
-
-
-def wordToVec(posts):
-    bagOfWords = {}
-    for q in posts:
-            for word in q.split():
-                bagOfWords[word] = 0
-    
-    i = 0
-    for item in bagOfWords:
-        bagOfWords[item] = str(i)
-        i += 1
-    
-    outposts = {}
-    for q in posts:
-        vec = [bagOfWords[w] for w in q.split()]
-        outposts[' '.join(vec)] = posts[q]
-
-    return outposts, bagOfWords
-
-# def cat_count(posts):
-#     filepath = "cat_count.csv"
-#     f = open(filepath, 'w')
-#     t = []
-
-#     for p in posts:
-#         t.append( (p,len(posts[p])) )
-#     t = sorted(t, key=lambda lts: lts[1])
-#     wr = csv.writer(f, quoting=csv.QUOTE_ALL)
-#     wr.writerows(t)
-#     f.close()
 
 if __name__ == "__main__":
-    # get data in {tag:[questions]}
-    p = getPostsByTags(3000)
-
-    # File already created, not required to do again
-    # cat_count(p)
-    
-    # filter by number of questions and put all else under "other" tag
-    # tagsWithMinQues(postsData, min_ques_per_tag, max_other_ques, max_ques_len)
-    p = tagsWithMinQues(p, 3000, 0, 160)
-
-    # convert {tag:[questions]} to {ques:[0,1,0,0,0,1...]} format
-    p, tags = toColumns(p)
-    # p, bagOfWords = wordToVec(p)
-    
-    # write of bag of words to json file to reference
-    # bagstr = json.dumps(bagOfWords)
-    # f = open("bagOfWords.json", 'w')
-    # f.write(bagstr)
-    # f.close()
-
-    saveToCSV(p, tags, "categories_data_3k_clean.csv")
+    getPostsByTags()
