@@ -7,9 +7,9 @@ import random
 import copy
 import json
 
-DB_NAME = 'buntu'
+DB_NAME = 'ubuntudb'
 DB_ENDPOINT = 'localhost'
-DB_USERNAME = 'postgres'
+DB_USERNAME = 'ubuntu'
 DB_PASSWORD = 'root'
 DB_PORT = 5432  # default port
 
