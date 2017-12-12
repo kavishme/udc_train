@@ -26,14 +26,15 @@ def create_app():
     @app.route('/categorize/', methods=['POST'])
     def mag_ask():
         if request.method == "POST":
-            versions = ["16.04", "16.10", "14.04", "14.10", "12.10", "12.04.5"]
+            #versions = []
+            versions = ["16.04", "16.10", "14.04", "14.10", "12.10", "12.04.5", "12.04"]
             question = str(request.data.get('question'))
             if question:
 
                 que_cats = magpie.predict_from_text(question)
                 que_cats = sorted(que_cats, key=operator.itemgetter(1), reverse=True)[:5]
                 print(que_cats)
-                que_cats = [t[0] for t in que_cats if t[1]>0.03 and t[0] not in versions]
+                que_cats = [t[0] for t in que_cats if t[1]>0.015 and t[0] not in versions]
                 if len(que_cats)>1:
                     response = jsonify({
                         'categories': que_cats
